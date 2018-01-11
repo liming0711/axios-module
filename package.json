@@ -1,0 +1,29 @@
+{
+  "name": "axios-module",
+  "version": "0.0.4",
+  "description": "a module based on axios",
+  "main": "axios-module.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liming0711/http-request.git"
+  },
+  "keywords": [
+    "axios",
+    "vue",
+    "ajax"
+  ],
+  "author": "749817924@qq.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/liming0711/http-request/issues"
+  },
+  "homepage": "https://github.com/liming0711/http-request#readme",
+  "dependencies": {
+    "axios": "^0.17.1",
+    "nprogress": "^0.2.0",
+    "query-string": "^5.0.1"
+  }
+}
