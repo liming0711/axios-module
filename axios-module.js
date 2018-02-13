@@ -95,7 +95,6 @@ class HttpClientModule {
     }
 
     const defaultOptions = {
-      // baseUrl: 'https://api.forcs.com',
       transformRequest: [function (data, headers) {
         if (headers['Content-Type'] === 'application/x-www-form-urlencoded') {
           // 针对 application/x-www-form-urlencoded 对 data 进行序列化
@@ -107,9 +106,7 @@ class HttpClientModule {
     };
 
     this.defaultConfig = {
-      headers: Object.assign({
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }, defaultHeaders)
+      headers: defaultHeaders
     };
 
     this.$http = axios.create(Object.assign(defaultOptions, options));
@@ -137,25 +134,25 @@ class HttpClientModule {
   }
 
   get (url, config = {}) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       resolve(httpRequest(this.$http.get(url, resolveConfig('get', this.defaultConfig, config))));
     })
   }
 
   post (url, data = undefined, config = {}) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       resolve(httpRequest(this.$http.post(url, data, resolveConfig('post', this.defaultConfig, config))));
     });
   }
 
   put (url, data = undefined, config = {}) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       resolve(httpRequest(this.$http.put(url, data, resolveConfig('put', this.defaultConfig, config))));
     });
   }
 
   delete (url, config = {}) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       resolve(httpRequest(this.$http.delete(url, resolveConfig('delete', this.defaultConfig, config))));
     });
   }
