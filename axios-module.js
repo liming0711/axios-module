@@ -111,9 +111,12 @@ class HttpClientModule {
 
     this.$http = axios.create(Object.assign(defaultOptions, options));
     // request 拦截器
+    // 当参数显示的声明 loading 为 false 时，不触发 loading 效果
     this.$http.interceptors.request.use(
       config => {
-        np.start();
+        if (config.loading !== false) {
+          np.start();
+        }
         return config;
       },
       error => {
