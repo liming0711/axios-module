@@ -1,47 +1,7 @@
 import axios from 'axios';
-import qs from 'query-string';
-import np from 'nprogress';
-import 'nprogress/nprogress.css';
+import qs from 'qs';
 
-function checkStatus (response) {
-  // 正常状态下，直接返回数据
-  // 异常状态下，response 是 undefined，返回一个错误信息，
-  // 如果没有错误信息，则返回自定义的错误信息
-  if (response && response.status < 400) {
-    return response;
-  }
-
-  return {
-    data: response && response.data ? response.data : {},
-    status: response && response.status ? response.status : -404,
-    statusText: response && response.statusText ? response.statusText : '其他错误'
-  };
-}
-
-function checkCode (response) {
-  if (response.status >= 400 && response.status < 500) {
-    response.statusText = '请求错误';
-  } else if (response.status >= 500) {
-    response.statusText = '服务器错误';
-  }
-
-  if (response.status >= 400 || response.status < 0) {
-    console.error(`${response.statusText}，错误码：${response.status}`);
-  }
-
-  np.done();
-  return response;
-}
-
-function httpRequest (request) {
-  return request
-    .then(response => {
-      return checkStatus(response);
-    })
-    .then(response => {
-      return checkCode(response);
-    });
-};
+const TIMEOUT = 2000;
 
 function isEmptyObject (obj) {
   return !obj || !Object.keys(obj).length;
@@ -94,69 +54,91 @@ class HttpClientModule {
       delete options.headers;
     }
 
-    const defaultOptions = {
-      transformRequest: [function (data, headers) {
-        if (headers['Content-Type'] === 'application/x-www-form-urlencoded') {
-          // 针对 application/x-www-form-urlencoded 对 data 进行序列化
-          return qs.stringify(data);
-        } else {
-          return data;
-        }
-      }]
+    let defaultOptions = {
+      timeout: TIMEOUT
     };
 
-    this.defaultConfig = {
-      headers: defaultHeaders
-    };
+    if (defaultHeaders['Content-Type'] === 'application/x-www-form-urlencoded') {
+      // 针对 application/x-www-form-urlencoded 对 data 进行序列化
+      defaultOptions.transformRequest = [function (data, headers) {
+        return qs.stringify(data);
+      }];
+    }
+
+    this.defaultConfig = defaultHeaders;
 
     this.$http = axios.create(Object.assign(defaultOptions, options));
     // request 拦截器
-    // 当参数显示的声明 loading 为 false 时，不触发 loading 效果
     this.$http.interceptors.request.use(
       config => {
-        if (config.loading !== false) {
-          np.start();
-        }
         return config;
       },
       error => {
+        console.error(error);
         return Promise.reject(error);
       });
-    // response 拦截器
+
+    // response 拦截器，重新请求功能
     this.$http.interceptors.response.use(
       response => {
         return response;
       },
       error => {
-        // 将错误信息也以 resolve 的方式返回，并将错误信息进行处理，后面就不需要写 catch 了
-        // 正常状态下，error.response 是错误信息
-        // 网络异常的情况下，error.response 是 undefined
-        return Promise.resolve(error.response);
-      }
-    );
+        var config = error.config;
+        // 如果无法获取 config 或者 config 里没有 retry 参数，则直接返回 reject
+        if(!config || !config.retry) {
+          return Promise.reject(error);
+        }
+        
+        // 设置一个参数来统计 retry 的次数
+        config.__retryCount = config.__retryCount || 0;
+        
+        // 如果 retry 次数达到了最大值还没有请求成功，则直接返回 reject
+        if(config.__retryCount >= config.retry) {
+          return Promise.reject(error);
+        }
+        
+        // 增加 retry 的值
+        config.__retryCount += 1;
+
+        // 声明一个 retry 的时间间隔，默认为 20ms
+        let retryDelay = config.retryDelay || 1;
+        
+        // 创建一个 Promise 来处理 retry 的延迟
+        var backoff = new Promise(resolve => {
+          setTimeout(function() {
+            resolve();
+          }, retryDelay);
+        });
+        
+        // 返回一个重新尝试请求的 Promise
+        return backoff.then(() => {
+          return this.$http(config);
+        });
+      });
   }
 
   get (url, config = {}) {
     return new Promise(resolve => {
-      resolve(httpRequest(this.$http.get(url, resolveConfig('get', this.defaultConfig, config))));
+      resolve(this.$http.get(url, resolveConfig('get', this.defaultConfig, config)));
     })
   }
 
   post (url, data = undefined, config = {}) {
     return new Promise(resolve => {
-      resolve(httpRequest(this.$http.post(url, data, resolveConfig('post', this.defaultConfig, config))));
+      resolve(this.$http.post(url, data, resolveConfig('post', this.defaultConfig, config)));
     });
   }
 
   put (url, data = undefined, config = {}) {
     return new Promise(resolve => {
-      resolve(httpRequest(this.$http.put(url, data, resolveConfig('put', this.defaultConfig, config))));
+      resolve(this.$http.put(url, data, resolveConfig('put', this.defaultConfig, config)));
     });
   }
 
   delete (url, config = {}) {
     return new Promise(resolve => {
-      resolve(httpRequest(this.$http.delete(url, resolveConfig('delete', this.defaultConfig, config))));
+      resolve(this.$http.delete(url, resolveConfig('delete', this.defaultConfig, config)));
     });
   }
 }
