@@ -101,12 +101,12 @@ class HttpClientModule {
         // 增加 retry 的值
         config.__retryCount += 1;
 
-        // 声明一个 retry 的时间间隔，默认为 20ms
-        let retryDelay = config.retryDelay || 1;
+        // 初始化一个 retry 的时间间隔，默认为 20ms
+        let retryDelay = config.retryDelay || 20;
         
         // 创建一个 Promise 来处理 retry 的延迟
         var backoff = new Promise(resolve => {
-          setTimeout(function() {
+          setTimeout(() => {
             resolve();
           }, retryDelay);
         });
