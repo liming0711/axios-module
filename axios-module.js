@@ -98,7 +98,7 @@ class HttpClientModule {
           return Promise.reject(error);
         }
         
-        // 增加 retry 的值
+        // 增加 retry 的次数
         config.__retryCount += 1;
 
         // 初始化一个 retry 的时间间隔，默认为 20ms

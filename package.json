@@ -1,6 +1,6 @@
 {
   "name": "axios-module",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "a module based on axios",
   "main": "axios-module.js",
   "scripts": {
@@ -22,8 +22,6 @@
   },
   "homepage": "https://github.com/liming0711/http-request#readme",
   "dependencies": {
-    "axios": "^0.17.1",
-    "nprogress": "^0.2.0",
-    "query-string": "^5.0.1"
+    "axios": "^0.17.1"
   }
 }
