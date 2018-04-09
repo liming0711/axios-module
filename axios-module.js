@@ -1,7 +1,7 @@
 import axios from 'axios';
 import qs from 'qs';
 
-const TIMEOUT = 2000;
+const TIMEOUT = 10000;
 
 function isEmptyObject (obj) {
   return !obj || !Object.keys(obj).length;
@@ -43,7 +43,6 @@ function resolveConfig (method, defaults = {}, extras = {}) {
   if (isEmptyObject(defaults) && isEmptyObject(extras)) {
     return {};
   }
-
   return Object.assign(defaults, extras, resolveHeaders(method, defaults.headers, extras.headers));
 }
 
@@ -54,18 +53,21 @@ class HttpClientModule {
       delete options.headers;
     }
 
-    let defaultOptions = {
-      timeout: TIMEOUT
+    const defaultOptions = {
+      timeout: TIMEOUT,
+      transformRequest: [function (data, headers) {
+        if (headers['Content-Type'] === 'application/x-www-form-urlencoded') {
+          // 针对application/x-www-form-urlencoded对data进行序列化
+          return qs.stringify(data)
+        } else {
+          return data
+        }
+      }]
     };
 
-    if (defaultHeaders['Content-Type'] === 'application/x-www-form-urlencoded') {
-      // 针对 application/x-www-form-urlencoded 对 data 进行序列化
-      defaultOptions.transformRequest = [function (data, headers) {
-        return qs.stringify(data);
-      }];
+    this.defaultConfig = {
+      headers: defaultHeaders
     }
-
-    this.defaultConfig = defaultHeaders;
 
     this.$http = axios.create(Object.assign(defaultOptions, options));
     // request 拦截器
@@ -144,8 +146,8 @@ class HttpClientModule {
 }
 
 // 导出工厂方法
-export function createHttpClient (options, defaults) {
-  return new HttpClientModule(options, defaults);
+export function createHttpClient (options) {
+  return new HttpClientModule(options);
 };
 
 // 默认导出模块对象
