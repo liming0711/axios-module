@@ -55,18 +55,20 @@ class HttpClientModule {
 
     const defaultOptions = {
       timeout: TIMEOUT,
-      transformRequest: [function (data, headers) {
+      // transformRequest 最后一个函数必须返回一个字符串，或 Buffer, ArrayBuffer, FormData, Stream 之一的实例
+      transformRequest: [(data, headers) => {
         if (headers['Content-Type'] === 'application/x-www-form-urlencoded') {
           // 针对application/x-www-form-urlencoded对data进行序列化
-          return qs.stringify(data)
-        } else {
-          return data
+          return qs.stringify(data);
         }
+        return JSON.stringify(data);
       }]
     };
 
     this.defaultConfig = {
-      headers: defaultHeaders
+      headers: Object.assign({
+        'Content-Type': 'application/json;charset=UTF-8'
+      }, defaultHeaders)
     }
 
     this.$http = axios.create(Object.assign(defaultOptions, options));

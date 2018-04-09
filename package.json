@@ -1,6 +1,6 @@
 {
   "name": "axios-module",
-  "version": "0.0.91",
+  "version": "0.0.92",
   "description": "a module based on axios",
   "main": "axios-module.js",
   "scripts": {
