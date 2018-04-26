@@ -1,6 +1,6 @@
 {
   "name": "axios-module",
-  "version": "0.0.92",
+  "version": "0.0.93",
   "description": "a module based on axios",
   "main": "axios-module.js",
   "scripts": {
@@ -20,8 +20,5 @@
   "bugs": {
     "url": "https://github.com/liming0711/http-request/issues"
   },
-  "homepage": "https://github.com/liming0711/http-request#readme",
-  "dependencies": {
-    "axios": "^0.17.1"
-  }
+  "homepage": "https://github.com/liming0711/http-request#readme"
 }

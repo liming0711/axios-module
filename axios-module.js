@@ -1,3 +1,4 @@
+// based on axios 0.17.1
 import axios from 'axios';
 import qs from 'qs';
 
@@ -123,27 +124,27 @@ class HttpClientModule {
   }
 
   get (url, config = {}) {
-    return new Promise(resolve => {
-      resolve(this.$http.get(url, resolveConfig('get', this.defaultConfig, config)));
-    })
+    return Promise.resolve(this.$http.get(url, resolveConfig('get', this.defaultConfig, config)));
   }
 
   post (url, data = undefined, config = {}) {
-    return new Promise(resolve => {
-      resolve(this.$http.post(url, data, resolveConfig('post', this.defaultConfig, config)));
-    });
+    return Promise.resolve(this.$http.post(url, data, resolveConfig('post', this.defaultConfig, config)));
   }
 
   put (url, data = undefined, config = {}) {
-    return new Promise(resolve => {
-      resolve(this.$http.put(url, data, resolveConfig('put', this.defaultConfig, config)));
-    });
+    return Promise.resolve(this.$http.put(url, data, resolveConfig('put', this.defaultConfig, config)));
   }
 
   delete (url, config = {}) {
-    return new Promise(resolve => {
-      resolve(this.$http.delete(url, resolveConfig('delete', this.defaultConfig, config)));
-    });
+    return Promise.resolve(this.$http.delete(url, resolveConfig('delete', this.defaultConfig, config)));
+  }
+
+  all (requests) {
+    return Promise.resolve(axios.all(requests));
+  }
+
+  spread (callback) {
+    return axios.spread(callback);
   }
 }
 
